@@ -1,0 +1,607 @@
+id: org.winehq.WineWechat
+default-branch: &app-version stable-22.08
+x-extension-versions: &extension-versions stable;stable-22.08
+sdk: org.freedesktop.Sdk
+runtime: org.freedesktop.Platform
+runtime-version: &runtime-version '22.08'
+x-gl-version: &gl-version '1.4'
+x-gl-versions: &gl-versions 22.08;1.4
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --device=all
+  - --socket=pulseaudio
+  - --share=network
+  - --allow=multiarch
+  - --allow=devel
+  - --system-talk-name=org.freedesktop.UDisks2
+  - --system-talk-name=org.freedesktop.NetworkManager
+  - --filesystem=xdg-desktop
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-pictures
+  - --filesystem=xdg-music
+  - --filesystem=xdg-videos
+  - --filesystem=xdg-download
+  - --env=WINEDLLPATH=/app/dlls/lib32:/app/dlls/lib
+  - --env=WINEPREFIX=/var/data/wine
+  - --env=GST_PLUGIN_SYSTEM_PATH=/app/lib32/gstreamer-1.0:/app/lib/gstreamer-1.0:/usr/lib/i386-linux-gnu/gstreamer-1.0:/usr/lib/x86_64-linux-gnu/gstreamer-1.0
+command: run.sh
+
+add-extensions:
+  org.freedesktop.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
+    version: *runtime-version
+
+  org.freedesktop.Platform.Compat.i386.Debug:
+    directory: lib/debug/lib/i386-linux-gnu
+    version: *runtime-version
+    no-autodownload: true
+
+  org.freedesktop.Platform.GL32:
+    directory: lib/i386-linux-gnu/GL
+    version: *gl-version
+    versions: *gl-versions
+    subdirectories: true
+    no-autodownload: true
+    autodelete: false
+    add-ld-path: lib
+    merge-dirs: vulkan/icd.d;glvnd/egl_vendor.d;OpenCL/vendors;lib/dri;lib/d3d;vulkan/explicit_layer.d
+    download-if: active-gl-driver
+    enable-if: active-gl-driver
+
+  org.freedesktop.Platform.VAAPI.Intel.i386:
+    directory: lib/i386-linux-gnu/dri/intel-vaapi-driver
+    version: *runtime-version
+    subdirectories: true
+    no-autodownload: true
+    autodelete: false
+    add-ld-path: lib
+    download-if: active-gl-driver
+    enable-if: active-gl-driver
+
+  org.freedesktop.Platform.ffmpeg-full:
+    directory: lib/ffmpeg
+    add-ld-path: .
+    version: *runtime-version
+    autodelete: false
+
+  org.freedesktop.Platform.ffmpeg_full.i386:
+    directory: lib32/ffmpeg
+    add-ld-path: .
+    version: *runtime-version
+    autodelete: false
+
+  org.winehq.Wine.gecko:
+    directory: share/wine/gecko
+    bundle: true
+
+  org.winehq.Wine.mono:
+    directory: share/wine/mono
+    bundle: true
+
+  org.winehq.Wine.DLLs:
+    directory: dlls
+    subdirectories: true
+    merge-dirs: lib;lib32;
+    version: *app-version
+    versions: *extension-versions
+
+sdk-extensions:
+  - org.freedesktop.Sdk.Compat.i386
+  - org.freedesktop.Sdk.Extension.toolchain-i386
+  - org.freedesktop.Sdk.Extension.mingw-w64
+
+build-options:
+  append-path: /usr/lib/sdk/mingw-w64/bin
+  env:
+    PERL5LIB: /app/lib/perl5/
+    PERL_MM_OPT: INSTALL_BASE=/app
+
+x-compat-i386-opts: &compat_i386_opts
+  prepend-pkg-config-path: /app/lib32/pkgconfig:/usr/lib/i386-linux-gnu/pkgconfig
+  # Some autotools-based builds will fail if -L/app/lib32 isn't first
+  ldflags: -L/app/lib32 -Wl,-rpath-link=/app/lib32 -Wl,-z,relro,-z,now -Wl,--as-needed
+  ldflags-override: true
+  append-path: /usr/lib/sdk/toolchain-i386/bin
+  env:
+    CC: ccache i686-unknown-linux-gnu-gcc
+    CXX: ccache i686-unknown-linux-gnu-g++
+  libdir: /app/lib32
+
+separate-locales: false
+cleanup:
+  - '*.a'
+  - '*.la'
+  - /share/man
+
+  - /bin/function_grep.pl
+  - /bin/widl
+  - /bin/winecpp
+  - /bin/winedump
+  - /bin/wineg++
+  - /bin/winegcc
+  - /bin/winemaker
+  - /bin/wmc
+  - /bin/wrc
+  - /include/wine
+  - /lib/wine/*.def
+  - /lib32/wine/*.def
+cleanup-commands:
+  - mkdir -p ${FLATPAK_DEST}/lib{,32}/ffmpeg
+modules:
+
+  # Multilib deps
+
+  - name: libusb
+    sources: &libusb-sources
+      - type: archive
+        url: https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
+        sha256: 12ce7a61fc9854d1d2a1ffe095f7b5fac19ddba095c259e6067a46500381b5a5
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/libusb/libusb/releases/latest
+          tag-query: .tag_name
+          version-query: $tag | sub("^[vV]"; "")
+          timestamp-query: .published_at
+          url-query: .assets[] | select(.name=="libusb-\($version).tar.bz2") | .browser_download_url
+    modules:
+
+      - name: eudev
+        cleanup: &eudev-cleanup
+          - /bin
+          - /sbin
+          - /lib*/udev
+        post-install:
+          - udevadm hwdb --update
+        sources: &eudev-sources
+          - type: archive
+            url: https://github.com/eudev-project/eudev/releases/download/v3.2.11/eudev-3.2.11.tar.gz
+            sha256: 19847cafec67897da855fde56f9dc7d92e21c50e450aa79068a7e704ed44558b
+            x-checker-data:
+              type: json
+              url: https://api.github.com/repos/gentoo/eudev/releases/latest
+              tag-query: .tag_name
+              version-query: $tag | sub("^[vV]"; "")
+              timestamp-query: .published_at
+              url-query: .assets[] | select(.name=="eudev-\($version).tar.gz") | .browser_download_url
+
+  - name: libusb-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    sources: *libusb-sources
+    modules:
+
+      - name: eudev-32bit
+        build-options:
+          arch:
+            x86_64: *compat_i386_opts
+        cleanup: *eudev-cleanup
+        sources: *eudev-sources
+
+  - name: FAudio
+    buildsystem: cmake-ninja
+    config-opts: &FAudio-config-opts
+      - -DGSTREAMER=ON
+    sources: &FAudio-sources
+      - type: archive
+        url: https://github.com/FNA-XNA/FAudio/archive/23.04/FAudio-23.04.tar.gz
+        sha256: 8e0bbf107103aa5f7d05710cdb27d66551a5dd18d78a41f2da79b58dc09361f2
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/FNA-XNA/FAudio/releases/latest
+          tag-query: .tag_name
+          version-query: $tag | sub("^[vV]"; "")
+          timestamp-query: .published_at
+          url-query: >-
+            "https://github.com/FNA-XNA/FAudio/archive/\($version)/FAudio-\($version).tar.gz"
+
+  - name: FAudio-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    buildsystem: cmake-ninja
+    config-opts: *FAudio-config-opts
+    sources: *FAudio-sources
+
+  - name: vkd3d
+    sources: &vkd3d-sources
+      - type: archive
+        url: https://dl.winehq.org/vkd3d/source/vkd3d-1.5.tar.xz
+        sha256: e3b3c355f46f7cbfc19e710a478bcb2bee267a5f360e7e6406238cea52ce2cfc
+
+  - name: vkd3d-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    sources: *vkd3d-sources
+
+  - name: krb5
+    subdir: src
+    config-opts: &krb5-config-opts
+      - --localstatedir=/var/lib
+      - --sbindir=${FLATPAK_DEST}/bin
+      - --disable-static
+      - --disable-rpath
+    cleanup: &krb5-cleanup
+      - /bin
+      - /share/et
+      - /share/examples
+      - /share/man
+    sources: &krb5-sources
+      - type: archive
+        url: https://github.com/krb5/krb5/archive/refs/tags/krb5-1.20.1-final.tar.gz
+        sha256: ec3861c3bec29aa8da9281953c680edfdab1754d1b1db8761c1d824e4b25496a
+        x-checker-data:
+          type: anitya
+          project-id: 13287
+          stable-only: true
+          url-template: https://github.com/krb5/krb5/archive/refs/tags/krb5-$version.tar.gz
+      - type: shell
+        dest: src
+        commands:
+          - autoreconf -si
+
+  - name: krb5-32bit
+    subdir: src
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    config-opts: *krb5-config-opts
+    sources: *krb5-sources
+    cleanup: *krb5-cleanup
+
+  - name: krb5-config
+    buildsystem: simple
+    build-commands:
+      - install -Dm 644 krb5.conf -t /app/etc
+    sources:
+      - type: file
+        path: files/krb5.conf
+
+  - name: openldap
+    config-opts: &openldap-config-opts
+      - --disable-slapd
+      - --disable-slurpd
+      - --disable-bdb
+      - --disable-hdb
+    cleanup: &openldap-cleanup
+      - /bin
+    sources: &openldap-sources
+      - type: archive
+        url: https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-2.6.1.tgz
+        sha256: 9d576ea6962d7db8a2e2808574e8c257c15aef55f403a1fb5a0faf35de70e6f3
+
+  - name: openldap-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    config-opts: *openldap-config-opts
+    cleanup: *openldap-cleanup
+    sources: *openldap-sources
+
+  - name: samba
+    build-options:
+      config-opts:
+        - --libexecdir=lib/libexec
+    config-opts: &samba-config-opts
+      - --localstatedir=/var
+      - --sharedstatedir=/var/lib
+      - --enable-fhs
+      - --disable-python
+      - --without-json
+      - --without-ad-dc
+      - --without-ads
+      - --without-pam
+      - --without-systemd
+    cleanup:
+      - /sbin
+    sources: &samba-sources
+      - type: archive
+        url: https://download.samba.org/pub/samba/samba-4.18.1.tar.gz
+        sha256: cedeaa2f244a0862c4f73b7b9f2ff92d181fd3ba7df80284a2f25f7713b9cc0e
+        x-checker-data:
+          type: html
+          url: https://download.samba.org/pub/samba/
+          pattern: (samba-(\d+\.\d+\.\d+)\.tar\.gz)
+    modules:
+      - name: perl-Parse-Yapp
+        buildsystem: simple
+        build-commands: &perl-build-commands
+          - perl Makefile.PL
+          - make install
+        cleanup:
+          - '*'
+        sources:
+          - type: archive
+            url: https://cpan.metacpan.org/authors/id/W/WB/WBRASWELL/Parse-Yapp-1.21.tar.gz
+            sha256: 3810e998308fba2e0f4f26043035032b027ce51ce5c8a52a8b8e340ca65f13e5
+
+      - name: perl-JSON
+        buildsystem: simple
+        build-commands: *perl-build-commands
+        cleanup:
+          - '*'
+        sources:
+          - type: archive
+            url: https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.07.tar.gz
+            sha256: 4f78b929798992e06106cf2bbc20de2375f7b60c60b3aa3ace02aae1e38513bb
+
+      - name: rpcsvc-proto
+        cleanup:
+          - '*'
+        sources:
+          - type: archive
+            url: https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.3.tar.gz
+            sha256: 6906e0f81bb016bd0216460fc879d3d9f2f6d743be7dfb0d8b32d140226d5ef8
+
+  - name: samba-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+      config-opts:
+        - --bindir=bin32
+        - --sbindir=sbin32
+        - --libexecdir=lib32/libexec
+    config-opts: *samba-config-opts
+    cleanup:
+      - /bin32
+      - /sbin32
+      - /lib32/samba
+    sources: *samba-sources
+
+  - name: unixodbc
+    sources: &unixodbc-sources
+      - type: archive
+        url: http://www.unixodbc.org/unixODBC-2.3.9.tar.gz
+        sha256: 52833eac3d681c8b0c9a5a65f2ebd745b3a964f208fc748f977e44015a31b207
+    cleanup: &unixodbc-cleanup
+      - /bin
+
+  - name: unixodbc-32bit
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+    sources: *unixodbc-sources
+    cleanup: *unixodbc-cleanup
+
+  # Native arch build
+
+  - name: wine
+    build-options:
+      arch:
+        x86_64:
+          config-opts:
+            - --enable-win64
+            - --with-mingw=ccache x86_64-w64-mingw32-gcc
+          libdir: /app/lib
+      env:
+        LIBDIR: lib
+    config-opts: &wine-config-opts
+      - --disable-win16
+      - --disable-tests
+      - --with-x
+      - --with-pulse
+      - --with-dbus
+      - --without-hal
+      - --without-oss
+    make-install-args: &wine-make-install-args
+      - LDCONFIG=/bin/true
+      - UPDATE_DESKTOP_DATABASE=/bin/true
+      - INSTALL_PROGRAM_FLAGS=-s
+    sources: &wine-sources
+      - type: archive
+        url: https://dl.winehq.org/wine/source/8.0/wine-8.0.tar.xz
+        sha256: 0272c20938f8721ae4510afaa8b36037457dd57661e4d664231079b9e91c792e
+        x-addons-url: &wine-addons-url >-
+          https://source.winehq.org/git/wine.git/blob_plain/refs/heads/stable:/dlls/appwiz.cpl/addons.c
+        x-checker-data:
+          type: html
+          url: https://source.winehq.org/git/wine.git/blob_plain/refs/heads/stable:/VERSION
+          version-pattern: Wine version (\d[\d\w\.-]+\d)
+          url-template: https://dl.winehq.org/wine/source/$major.$minor/wine-$version.tar.xz
+          is-main-source: true
+      - type: patch
+        paths:
+          - patches/wine/loader-prefer-winedllpath.patch
+
+  # 32-bit compatibility build
+
+  - name: wine-32bit
+    only-arches:
+      - x86_64
+    build-options:
+      arch:
+        x86_64: *compat_i386_opts
+      config-opts:
+        - --bindir=${FLATPAK_DEST}/bin32
+        - --with-mingw=ccache i686-w64-mingw32-gcc
+      env:
+        LIBDIR: lib32
+    config-opts: *wine-config-opts
+    make-install-args: *wine-make-install-args
+    post-install:
+      - mv ${FLATPAK_DEST}/bin32/wine{,-preloader} ${FLATPAK_DEST}/bin/
+    sources: *wine-sources
+    cleanup:
+      - /bin32
+
+  # Tools
+
+  - name: winetricks
+    no-autogen: true
+    make-args:
+      - PREFIX=/app
+    make-install-args:
+      - PREFIX=/app
+    sources:
+      - type: git
+        url: https://github.com/Winetricks/winetricks.git
+        tag: '20230212'
+        commit: e9f380aab64c07126d9259e1c16598c332c2f58f
+        x-checker-data:
+          type: git
+          tag-pattern: ^(\d+)$
+    modules:
+
+      - name: p7zip
+        no-autogen: true
+        make-args:
+          - all2
+          - OPTFLAGS=-O2 -g
+          - DEST_HOME=/app
+          - DEST_BIN=/app/bin
+          - DEST_SHARE=/app/lib/p7zip
+          - DEST_MAN=/app/share/man
+        make-install-args:
+          - DEST_HOME=/app
+          - DEST_BIN=/app/bin
+          - DEST_SHARE=/app/lib/p7zip
+          - DEST_MAN=/app/share/man
+        sources:
+          - type: archive
+            url: https://downloads.sourceforge.net/p7zip/p7zip_16.02_src_all.tar.bz2
+            sha256: 5eb20ac0e2944f6cb9c2d51dd6c4518941c185347d4089ea89087ffdd6e2341f
+          - type: patch
+            paths:
+              - patches/p7zip/gcc10-conversion.patch
+              - patches/p7zip/14-Fix-g++-warning.patch
+          - type: shell
+            only-arches:
+              - x86_64
+            commands:
+              - ln -sf makefile.linux_amd64_asm makefile.machine
+          - type: shell
+            only-arches:
+              - i386
+            commands:
+              - ln -sf makefile.linux_x86_asm_gcc_4.X makefile.machine
+        modules:
+
+          - name: yasm
+            buildsystem: cmake-ninja
+            sources:
+              - type: archive
+                url: https://github.com/yasm/yasm/archive/v1.3.0.tar.gz
+                sha256: f708be0b7b8c59bc1dbe7134153cd2f31faeebaa8eec48676c10f972a1f13df3
+            cleanup:
+              - '*'
+
+      - name: cabextract
+        sources:
+          - type: archive
+            url: https://www.cabextract.org.uk/cabextract-1.9.1.tar.gz
+            sha256: afc253673c8ef316b4d5c29cc4aa8445844bee14afffbe092ee9469405851ca7
+
+  # Bundled extensions
+
+  - name: wine-gecko
+    buildsystem: simple
+    build-commands:
+      - mkdir -p ${FLATPAK_DEST}/share/wine/gecko/
+      - install -v -Dm755 *.msi -t ${FLATPAK_DEST}/share/wine/gecko/
+    post-install:
+      - >-
+        install -Dm644
+        -t ${FLATPAK_DEST}/share/wine/gecko/share/metainfo/
+        ${FLATPAK_ID}.gecko.metainfo.xml
+      - >-
+        appstream-compose
+        --basename=${FLATPAK_ID}.gecko
+        --prefix=${FLATPAK_DEST}/share/wine/gecko
+        --origin=flatpak ${FLATPAK_ID}.gecko
+    sources:
+      - type: file
+        only-arches:
+          - i386
+          - x86_64
+        url: https://dl.winehq.org/wine/wine-gecko/2.47.3/wine-gecko-2.47.3-x86.msi
+        sha256: e5b9b06d3ce355646a8d2e72e044e37e1e0c8d18464eb1985adcd187a7f48e01
+        x-checker-data:
+          type: html
+          url: *wine-addons-url
+          version-pattern: &wine-gecko-version-pattern >-
+            GECKO_VERSION\s+"(\d[\d\.]+\d)"
+          url-template: https://dl.winehq.org/wine/wine-gecko/$version/wine-gecko-$version-x86.msi
+      - type: file
+        only-arches:
+          - x86_64
+        url: https://dl.winehq.org/wine/wine-gecko/2.47.3/wine-gecko-2.47.3-x86_64.msi
+        sha256: a53ee954392b6d1fe3d68545f6e4e2a97afbc8dc8b03a8b443349545ce139675
+        x-checker-data:
+          type: html
+          url: *wine-addons-url
+          version-pattern: *wine-gecko-version-pattern
+          url-template: https://dl.winehq.org/wine/wine-gecko/$version/wine-gecko-$version-x86_64.msi
+      - type: file
+        path: org.winehq.Wine.gecko.metainfo.xml
+
+  - name: wine-mono
+    buildsystem: simple
+    build-commands:
+      - mkdir -p ${FLATPAK_DEST}/share/wine/mono/
+      - cp -a wine-mono-* ${FLATPAK_DEST}/share/wine/mono/
+    post-install:
+      - >-
+        install -Dm644
+        -t ${FLATPAK_DEST}/share/wine/mono/share/metainfo/
+        ${FLATPAK_ID}.mono.metainfo.xml
+      - >-
+        appstream-compose
+        --basename=${FLATPAK_ID}.mono
+        --prefix=${FLATPAK_DEST}/share/wine/mono
+        --origin=flatpak ${FLATPAK_ID}.mono
+    sources:
+      - type: archive
+        url: https://dl.winehq.org/wine/wine-mono/7.4.0/wine-mono-7.4.0-x86.tar.xz
+        strip-components: 0
+        sha256: 9249ece664bcf2fecb1308ea1d2542c72923df9fe3df891986f137b2266a9ba3
+        x-checker-data:
+          type: html
+          url: *wine-addons-url
+          version-pattern: MONO_VERSION\s+"(\d[\d\.]+\d)"
+          url-template: https://dl.winehq.org/wine/wine-mono/$version/wine-mono-$version-x86.tar.xz
+      - type: file
+        path: org.winehq.Wine.mono.metainfo.xml
+
+  # Flatpak bundle
+
+  - name: bundle-setup
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 -t ${FLATPAK_DEST}/etc ld.so.conf
+      - mkdir -p ${FLATPAK_DEST}/{,lib/debug/}lib/i386-linux-gnu/GL
+      - mkdir -p ${FLATPAK_DEST}/dlls
+      - install -Dm644 ${FLATPAK_ID}.appdata.xml -t ${FLATPAK_DEST}/share/appdata
+      - |
+        icondir=${FLATPAK_DEST}/share/icons/hicolor
+        install -Dm644 com.weixin_deepin.unpack.svg ${icondir}/scalable/apps/com.weixin_deepin.unpack.svg
+        for s in 64 128 256; do
+          mkdir -p ${icondir}/${s}x${s}/apps
+          rsvg-convert -h ${s} -a -o ${icondir}/${s}x${s}/apps/wine.png ${icondir}/scalable/apps/com.weixin_deepin.unpack.svg
+        done
+    sources:
+      - type: file
+        path: ld.so.conf
+      - type: file
+        path: com.weixin_deepin.unpack.svg
+      - type: file
+        path: org.winehq.WineWechat.appdata.xml
+
+  - name: wechat
+    buildsystem: simple
+    build-commands:
+      - install -Dm777 run.sh /app/bin/run.sh
+      - ar -p 39331e35ad664664aececa2c817f413c.deb data.tar.xz > data.tar.xz
+      - tar xvf data.tar.xz
+      - install -Dm644 opt/apps/com.qq.weixin.deepin/files/files.7z /app/weixin_deepin/files.7z
+      - install -Dm644 com.weixin_deepin.unpack.desktop /app/share/applications/com.weixin_deepin.unpack.desktop
+      - install -Dm644 com.weixin_deepin.unpack.svg /app/share/icons/hicolor/scalable/apps/com.weixin_deepin.unpack.svg
+    sources:
+      - type: dir
+        path: ./
+        skip: .flatpak-builder
+      - type: file
+        url: https://home-store-img.uniontech.com/apppkg/39331e35ad664664aececa2c817f413c.deb
+        sha256: 27d8cbd739d803b5248782368cd09a3a91ae0dfa39a7d3c9957ce7cc9ae4d64a

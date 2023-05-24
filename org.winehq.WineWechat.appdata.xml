@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2017 Jens Reyer <jre.winesim@gmail.com> -->
+<component type="console-application">
+  <id>org.winehq.WineWechat</id>
+  <name>微信</name>
+  <summary>Wine 版本微信</summary>
+
+  <description>
+    <p>
+      Wine 版本微信
+    </p>
+  </description>
+
+  <url type="homepage">https://www.winehq.org/</url>
+  <url type="bugtracker">https://bugs.winehq.org/</url>
+  <url type="faq">https://wiki.winehq.org/FAQ</url>
+  <url type="help">https://wiki.winehq.org/</url>
+  <url type="donation">https://www.winehq.org/donate</url>
+  <url type="translate">https://wiki.winehq.org/Translating</url>
+
+  <screenshots>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.1" date="2023-05-24"/>
+  </releases>
+</component>
