@@ -502,12 +502,12 @@ modules:
       - >-
         install -Dm644
         -t ${FLATPAK_DEST}/share/wine/gecko/share/metainfo/
-        ${FLATPAK_ID}.gecko.metainfo.xml
+        org.winehq.Wine.gecko.metainfo.xml
       - >-
         appstream-compose
-        --basename=${FLATPAK_ID}.gecko
+        --basename=org.winehq.Wine.gecko
         --prefix=${FLATPAK_DEST}/share/wine/gecko
-        --origin=flatpak ${FLATPAK_ID}.gecko
+        --origin=flatpak org.winehq.Wine.gecko
     sources:
       - type: file
         only-arches:
@@ -543,12 +543,12 @@ modules:
       - >-
         install -Dm644
         -t ${FLATPAK_DEST}/share/wine/mono/share/metainfo/
-        ${FLATPAK_ID}.mono.metainfo.xml
+        org.winehq.Wine.mono.metainfo.xml
       - >-
         appstream-compose
-        --basename=${FLATPAK_ID}.mono
+        --basename=org.winehq.Wine.mono
         --prefix=${FLATPAK_DEST}/share/wine/mono
-        --origin=flatpak ${FLATPAK_ID}.mono
+        --origin=flatpak org.winehq.Wine.mono
     sources:
       - type: archive
         url: https://dl.winehq.org/wine/wine-mono/7.4.0/wine-mono-7.4.0-x86.tar.xz
@@ -570,7 +570,7 @@ modules:
       - install -Dm644 -t ${FLATPAK_DEST}/etc ld.so.conf
       - mkdir -p ${FLATPAK_DEST}/{,lib/debug/}lib/i386-linux-gnu/GL
       - mkdir -p ${FLATPAK_DEST}/dlls
-      - install -Dm644 ${FLATPAK_ID}.appdata.xml -t ${FLATPAK_DEST}/share/appdata
+      - install -Dm644 org.winehq.WineWechat.appdata.xml -t ${FLATPAK_DEST}/share/appdata
       - |
         icondir=${FLATPAK_DEST}/share/icons/hicolor
         install -Dm644 com.weixin_deepin.unpack.svg ${icondir}/scalable/apps/com.weixin_deepin.unpack.svg
