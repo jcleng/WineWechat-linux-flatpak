@@ -4,6 +4,8 @@
 wine的包是使用的[deepin-wine
 ](https://github.com/zq1997/deepin-wine#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)的包
 
+Forked from https://github.com/flathub/org.winehq.Wine
+
 https://deepin-wine.i-m.dev/
 
 首次打开会初始化wine和解压软件安装包,会慢一点(提示下载Wine.mono,可以进行取消)
