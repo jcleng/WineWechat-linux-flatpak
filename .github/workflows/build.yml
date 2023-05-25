@@ -25,6 +25,10 @@ jobs:
         manifest-path: org.winehq.WineWechat.yml
         cache-key: flatpak-builder0524
 
+    - name: other package
+      run: |
+        flatpak build-bundle repo org.winehq.Wine.gecko.flatpak org.winehq.Wine.gecko master
+        flatpak build-bundle repo org.winehq.Wine.mono.flatpak org.winehq.Wine.mono master
     # - name: Cloudupload
     #   id: cloudupload
     #   run: |
