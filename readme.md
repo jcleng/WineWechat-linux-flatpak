@@ -25,3 +25,13 @@ dll提示错误可以关闭重新打开
 
 ![1684986313978.png](https://img1.imgtp.com/2023/05/25/nmub8UA1.png)
 
+
+- 高分屏显示器字体非常小, 需要设置dpi
+
+```shell
+flatpak run --command=sh org.winehq.WineWechat
+export WINEPREFIX=$XDG_DATA_HOME/weixindir
+export WINEARCH=win32
+winecfg
+# 在[显示][dpi], 2k和4k我是设置192即可, 默认是96
+```
