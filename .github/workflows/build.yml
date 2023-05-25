@@ -22,7 +22,7 @@ jobs:
       with:
         bundle: org.winehq.WineWechat.flatpak
         manifest-path: org.winehq.WineWechat.yml
-        cache-key: flatpak-builder0524
+        cache-key: flatpak-builder0525
 
     # - name: Cloudupload
     #   id: cloudupload

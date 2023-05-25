@@ -593,8 +593,8 @@ modules:
       - ar -p 39331e35ad664664aececa2c817f413c.deb data.tar.xz > data.tar.xz
       - tar xvf data.tar.xz
       - install -Dm644 opt/apps/com.qq.weixin.deepin/files/files.7z /app/weixin_deepin/files.7z
-      - install -Dm644 org.winehq.WineWechat.desktop ${FLATPAK_DEST}/share/applications/org.winehq.WineWechat.desktop
-      - install -Dm644 org.winehq.WineWechat.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/org.winehq.WineWechat.svg
+      - install -Dm644 org.winehq.WineWechat.desktop /app/share/applications/org.winehq.WineWechat.desktop
+      - install -Dm644 org.winehq.WineWechat.svg /app/share/icons/hicolor/scalable/apps/org.winehq.WineWechat.svg
 
     sources:
       - type: dir
