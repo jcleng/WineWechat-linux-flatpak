@@ -20,11 +20,9 @@ rm -rf $XDG_DATA_HOME/weixin_deepin
 dll提示错误可以关闭重新打开
 
 
-![1684986167503.jpg](https://img1.imgtp.com/2023/05/25/jGbA7bYi.jpg)
+![1685027175247.png](https://img1.imgtp.com/2023/05/25/WLfLi72y.png)
 
-
-![1684986313978.png](https://img1.imgtp.com/2023/05/25/nmub8UA1.png)
-
+![1685027067856.png](https://img1.imgtp.com/2023/05/25/glRQqAkh.png)
 
 - 高分屏显示器字体非常小, 需要设置dpi
 
