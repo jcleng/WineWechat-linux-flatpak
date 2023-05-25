@@ -2,12 +2,14 @@
 <!-- Copyright (c) 2017 Jens Reyer <jre.winesim@gmail.com> -->
 <component type="console-application">
   <id>org.winehq.WineWechat</id>
-  <name>微信</name>
-  <summary>Wine 版本微信</summary>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>LGPL-2.1+</project_license>
+  <name>WineWechat</name>
+  <summary>WineWechat</summary>
 
   <description>
     <p>
-      Wine 版本微信
+      WineWechat
     </p>
   </description>
 
@@ -19,11 +21,23 @@
   <url type="translate">https://wiki.winehq.org/Translating</url>
 
   <screenshots>
+    <screenshot type="default">
+      <image>https://dl.winehq.org/share/images/screenshots/outlook2010.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://dl.winehq.org/share/images/screenshots/steam.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://dl.winehq.org/share/images/screenshots/goggalaxy.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://dl.winehq.org/share/images/screenshots/skyrim_specialed.jpg</image>
+    </screenshot>
   </screenshots>
 
   <content_rating type="oars-1.1"/>
 
   <releases>
-    <release version="0.1" date="2023-05-24"/>
+    <release version="0.1" date="2023-05-25"/>
   </releases>
 </component>
