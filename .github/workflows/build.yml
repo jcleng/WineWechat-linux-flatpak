@@ -25,6 +25,20 @@ jobs:
         manifest-path: org.winehq.WineWechat.yml
         cache-key: flatpak-builder0524
 
+    - name: gecko
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v4
+      with:
+        bundle: org.winehq.Wine.gecko.flatpak
+        manifest-path: org.winehq.WineWechat.yml
+        cache-key: flatpak-builder0524
+
+    - name: mono
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v4
+      with:
+        bundle: org.winehq.Wine.mono.flatpak
+        manifest-path: org.winehq.WineWechat.yml
+        cache-key: flatpak-builder0524
+
     # - name: Cloudupload
     #   id: cloudupload
     #   run: |
