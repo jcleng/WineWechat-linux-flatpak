@@ -1,7 +1,7 @@
 [Desktop Entry]
 Categories=Network;InstantMessaging;Chat;
 Exec=run.sh
-Icon=com.weixin_deepin.unpack
+Icon=org.winehq.WineWechat
 Name=微信(wine)
 Comment=来自deepin的wine解包
 Terminal=false

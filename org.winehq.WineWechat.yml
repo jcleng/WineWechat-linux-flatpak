@@ -573,16 +573,16 @@ modules:
       - install -Dm644 org.winehq.WineWechat.appdata.xml -t ${FLATPAK_DEST}/share/appdata
       - |
         icondir=${FLATPAK_DEST}/share/icons/hicolor
-        install -Dm644 com.weixin_deepin.unpack.svg ${icondir}/scalable/apps/com.weixin_deepin.unpack.svg
+        install -Dm644 org.winehq.WineWechat.svg ${icondir}/scalable/apps/org.winehq.WineWechat.svg
         for s in 64 128 256; do
           mkdir -p ${icondir}/${s}x${s}/apps
-          rsvg-convert -h ${s} -a -o ${icondir}/${s}x${s}/apps/wine.png ${icondir}/scalable/apps/com.weixin_deepin.unpack.svg
+          rsvg-convert -h ${s} -a -o ${icondir}/${s}x${s}/apps/org.winehq.WineWechat.png ${icondir}/scalable/apps/org.winehq.WineWechat.svg
         done
     sources:
       - type: file
         path: ld.so.conf
       - type: file
-        path: com.weixin_deepin.unpack.svg
+        path: org.winehq.WineWechat.svg
       - type: file
         path: org.winehq.WineWechat.appdata.xml
 
@@ -593,8 +593,9 @@ modules:
       - ar -p 39331e35ad664664aececa2c817f413c.deb data.tar.xz > data.tar.xz
       - tar xvf data.tar.xz
       - install -Dm644 opt/apps/com.qq.weixin.deepin/files/files.7z /app/weixin_deepin/files.7z
-      - install -Dm644 com.weixin_deepin.unpack.desktop /app/share/applications/com.weixin_deepin.unpack.desktop
-      - install -Dm644 com.weixin_deepin.unpack.svg /app/share/icons/hicolor/scalable/apps/com.weixin_deepin.unpack.svg
+      - install -Dm644 org.winehq.WineWechat.desktop ${FLATPAK_DEST}/share/applications/org.winehq.WineWechat.desktop
+      - install -Dm644 org.winehq.WineWechat.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/org.winehq.WineWechat.svg
+
     sources:
       - type: dir
         path: ./
