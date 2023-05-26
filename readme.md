@@ -1,10 +1,10 @@
 # flatpak微信
 
 
-wine的包是使用的[deepin-wine
-](https://github.com/zq1997/deepin-wine#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)的包
+微信的安装包是使用的[deepin-wine
+](https://github.com/zq1997/deepin-wine#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)的解包
 
-Forked from https://github.com/flathub/org.winehq.Wine
+wine Forked from https://github.com/flathub/org.winehq.Wine
 
 https://deepin-wine.i-m.dev/
 
