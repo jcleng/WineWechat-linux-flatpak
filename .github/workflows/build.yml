@@ -1,9 +1,8 @@
+name: RUN BUILD
 on:
   push:
     tags:
-      - "*"
-
-name: RUN BUILD
+      - '*'
 jobs:
   flatpak:
     name: "Flatpak"
