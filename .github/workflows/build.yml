@@ -2,7 +2,7 @@ on:
   push:
     tags:
       - "*"
-        
+
 name: RUN BUILD
 jobs:
   flatpak:
@@ -23,6 +23,7 @@ jobs:
 #         bundle: org.winehq.WineWechat.flatpak
 #         manifest-path: org.winehq.WineWechat.yml
 #         cache-key: flatpak-builder0525
+
 
 # 使用手动命令执行打包
     - name: flatpak-builder run
