@@ -17,12 +17,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: flatpak action
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v4
-      with:
-        bundle: org.winehq.WineWechat.flatpak
-        manifest-path: org.winehq.WineWechat.yml
-        cache-key: flatpak-builder0525
+#     - name: flatpak action
+#       uses: flatpak/flatpak-github-actions/flatpak-builder@v4
+#       with:
+#         bundle: org.winehq.WineWechat.flatpak
+#         manifest-path: org.winehq.WineWechat.yml
+#         cache-key: flatpak-builder0525
+
+# 使用手动命令执行打包
+    - name: flatpak-builder run
+      run: |
+        flatpak-builder --repo=repo --disable-rofiles-fuse --install-deps-from=flathub --force-clean --default-branch=master --arch=x86_64 --ccache flatpak_app org.winehq.WineWechat.yml
 
     # - name: Cloudupload
     #   id: cloudupload
