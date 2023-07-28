@@ -2,12 +2,6 @@ on:
   push:
     tags:
       - "*"
-  workflow_dispatch:
-    inputs:
-      start:
-        description: 'start'
-        required: false
-        default: 'true'
         
 name: RUN BUILD
 jobs:
