@@ -29,8 +29,6 @@ jobs:
       run: |
         flatpak-builder --repo=repo --disable-rofiles-fuse --install-deps-from=flathub --force-clean --default-branch=master --arch=x86_64 --ccache flatpak_app org.winehq.WineWechat.yml
         flatpak build-bundle repo org.winehq.WineWechat.flatpak org.winehq.WineWechat
-        flatpak build-bundle repo org.winehq.Wine.gecko.flatpak org.winehq.Wine.gecko
-        flatpak build-bundle repo org.winehq.Wine.mono.flatpak org.winehq.Wine.mono
     # - name: Cloudupload
     #   id: cloudupload
     #   run: |
