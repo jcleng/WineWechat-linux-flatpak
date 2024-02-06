@@ -1,8 +1,8 @@
 [Desktop Entry]
 Categories=Network;InstantMessaging;Chat;
-Exec=run.sh
+Exec=weixin.sh
 Icon=org.winehq.WineWechat
 Name=微信(wine)
-Comment=来自deepin的wine解包
+Comment=来自kylinos的wine解包
 Terminal=false
 Type=Application

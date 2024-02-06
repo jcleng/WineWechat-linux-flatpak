@@ -33,3 +33,11 @@ export WINEARCH=win32
 winecfg
 # 在[显示][dpi], 2k和4k我是设置192即可, 默认是96
 ```
+
+
+- 构建测试
+
+```shell
+flatpak-builder --repo=repo --force-clean --install --user build-dir org.winehq.WineWechat.yml
+
+```
